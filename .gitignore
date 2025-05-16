@@ -1,0 +1,34 @@
+# === Python ===
+*.py[cod]
+__pycache__/
+*.so
+*.egg-info/
+dist/
+build/
+env/
+venv/
+ENV/
+.Python
+*.sqlite3
+*.log
+tempCodeRunnerFile.py
+
+
+# === Environment variables ===
+.env
+
+# === React ===
+node_modules/
+build/
+dist/
+.cache/
+*.log
+*.env
+*.env.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# === OS files ===
+.DS_Store
+Thumbs.db
