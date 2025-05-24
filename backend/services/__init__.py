@@ -1,3 +1,3 @@
-from .openai import OpenAI
-from .vector_db import VectorDB
+from .VectorDB import VectorDB
 from .Whisper import Whisper
+from .CohereChat import CohereChat

@@ -20,7 +20,7 @@ export const Overview = () => {
         </p>
         <p>
           Welcome to<br />
-          your intelligent <strong>chatbot</strong> <br />
+          <strong>MeetAI</strong> <br />
         </p>
       </div>
     </motion.div>

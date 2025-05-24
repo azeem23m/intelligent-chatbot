@@ -1,22 +1,34 @@
-from faster_whisper import WhisperModel
+import whisperx
 import torch
+from dotenv import load_dotenv
+load_dotenv()
 
-torch.backends.cuda.matmul.allow_tf32 = True  
+
+torch.backends.cuda.matmul.allow_tf32 = True
 torch.backends.cudnn.allow_tf32 = True
 
 class Whisper():
   
   def __init__(self):
-     self.model = WhisperModel(
-        "models/whisper-small-codeswitching-ArabicEnglish-ct2",
-        device="cuda",
-        compute_type="float16"
+    self.device = "cuda"
+    self.model = whisperx.load_model(
+      "distil-large-v3.5",
+      device=self.device,
+      compute_type="int8_float16",
+      local_files_only=True
     )
 
-  def transcribe(self, audio_path, start, end):
-    segments, info = self.model.transcribe(audio_path, beam_size=5, language='en')
-    transcription = ''.join(segment.text for segment in segments)
-    with open("transcription.txt", "a") as f:
-        f.write("[%.2fs -> %.2fs] %s\n" % (start, end, transcription))
+  def transcribe(self, audio_path):
+    audio = whisperx.load_audio(audio_path)
+    result = self.model.transcribe(audio, batch_size=16)
 
-    return transcription
+    model_a, metadata = whisperx.load_align_model(language_code=result["language"], device=self.device)
+    result = whisperx.align(result["segments"], model_a, metadata, audio, self.device, return_char_alignments=False)
+    transcription = '. '.join([segment['text'] for segment in result["segments"]])
+    start, end = result['segments'][0]['start'], result['segments'][-1]['end']
+
+    # with open("transcription.txt", "a") as f:
+    #     f.write("[%.2fs -> %.2fs] %s\n" % (start, end, transcription))
+
+    return transcription, start, end
+  

@@ -1,0 +1,10 @@
+python-dotenv==0.10.1
+fastapi==0.115.12
+cohere==5.15.0
+qdrant-client==1.14.2
+fastembed==0.7.0
+whisperx @ git+https://github.com/m-bain/whisperx.git@5012650d0f3d8966f3ea517762f952a624996d32
+ctranslate2==4.4.0
+shutils==0.1.0
+uvicorn==0.34.2
+python-multipart==0.0.20

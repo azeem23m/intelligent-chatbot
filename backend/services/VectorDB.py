@@ -3,6 +3,7 @@ import os
 import cohere
 from qdrant_client import QdrantClient, models
 from fastembed import SparseTextEmbedding
+from typing import Dict, Any
 
 
 load_dotenv()
@@ -10,7 +11,7 @@ load_dotenv()
 
 class Embedder():
 
-    def __init__(self, model_name="embed-multilingual-light-v3.0", dimension=384):
+    def __init__(self, model_name: str="embed-multilingual-light-v3.0", dimension: int=384):
 
         self.client = cohere.Client(os.getenv("COHERE_KEY"))
         self.model_name = model_name
@@ -21,7 +22,7 @@ class Embedder():
 
         return self.dimension
 
-    def embed(self, text, input_type="search_document"):
+    def embed(self, text: str, input_type: str="search_document"):
         
         dense_embeddings = self.client.embed(
             texts=[text],
@@ -36,13 +37,13 @@ class Embedder():
 
 class VectorDB():
 
-    def __init__(self, url="http://localhost:6333", embedder=Embedder()):
+    def __init__(self, url: str="http://localhost:6333", embedder: Embedder=Embedder()):
 
         self.embedder = embedder
         self.client = None
         self.url = url
         self.connect()
-        
+        self.create_collection("rag")
 
     def connect(self):
         self.client = QdrantClient(self.url)
@@ -54,10 +55,10 @@ class VectorDB():
         return self.client is not None
 
 
-    def does_collection_exist(self, collection_name):
+    def does_collection_exist(self, collection_name: str):
         return self.client.collection_exists(collection_name=collection_name)
 
-    def create_collection(self, collection_name):
+    def create_collection(self, collection_name: str):
         if self.does_collection_exist(collection_name):
             return
 
@@ -68,12 +69,12 @@ class VectorDB():
                 size=self.embedder.get_dimension(), 
                 distance=models.Distance.COSINE
             )
-        },  # size and distance are model dependent
+        },
         sparse_vectors_config={"sparse": models.SparseVectorParams()},
     )
 
 
-    def add_document(self, collection_name, document, metadata, id):
+    def add_document(self, collection_name: str, document: str, metadata: Dict[str, Any], id):
 
         dense_embeddings, sparse_embeddings = self.embedder.embed(document)
 
@@ -92,7 +93,7 @@ class VectorDB():
         )
 
 
-    def query(self, collection_name, document, limit=5):
+    def query(self, collection_name: str, document: str, limit: int=5):
 
         dense_embeddings, sparse_embeddings = self.embedder.embed(document, input_type="search_query")
 

@@ -1,8 +1,12 @@
 from fastapi import FastAPI
-from services import VectorDB, OpenAI, Whisper
+from services import VectorDB, CohereChat, Whisper
 from routes import data, chat
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+
+import torch
+torch.backends.cuda.matmul.allow_tf32 = True
+torch.backends.cudnn.allow_tf32 = True
 
 app = FastAPI()
 
@@ -15,18 +19,14 @@ app.add_middleware(
 )
 
 app.vector_db = VectorDB()
-app.model = OpenAI()
+app.model = CohereChat()
 app.whisper = Whisper()
-app.previous_chunk = ""
+app.history = ""
+app.time = 0
 
 app.include_router(chat, prefix="/chat")
 app.include_router(data, prefix="/data")
 
-@app.get("/")
-async def home():
-    return {
-        'response': True
-    }
 
 if __name__ == '__main__':
     app.run(debug=True)

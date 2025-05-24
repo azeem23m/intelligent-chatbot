@@ -6,8 +6,19 @@ import { toast } from 'sonner';
 import { motion } from 'framer-motion';
 import { useState } from 'react';
 import { useAudioRecorder } from "../../Hooks/useRecorder";
-import { CircleStop, Pause, Play, UploadIcon } from "lucide-react";
-import { FileUp } from "lucide-react";
+
+const PlayIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4 2L12 8L4 14V2Z" fill="currentColor" />
+  </svg>
+);
+
+const StopIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="4" y="4" width="8" height="8" fill="currentColor" />
+  </svg>
+);
+
 interface ChatInputProps {
     question: string;
     setQuestion: (question: string) => void;
@@ -15,69 +26,15 @@ interface ChatInputProps {
     isLoading: boolean;
 }
 
-const suggestedActions = [
-    {
-        title: 'How is the weather',
-        label: 'in Vienna?',
-        action: 'How is the weather in Vienna today?',
-    },
-    {
-        title: 'Tell me a fun fact',
-        label: 'about pandas',
-        action: 'Tell me an interesting fact about pandas',
-    },
-];
-
 export const ChatInput = ({ question, setQuestion, onSubmit, isLoading }: ChatInputProps) => {
-    const [showSuggestions, setShowSuggestions] = useState(true);
     const {
         startRecording,
         stopRecording,
-        isRecording,
-        isLoadingRecorder,
-        error,
-        chunksCount
+        isRecording
     } = useAudioRecorder();
-    // console.log(error)
+
     return(
     <div className="relative w-full flex flex-col gap-4">
-        {showSuggestions && (
-            <div className="hidden md:grid sm:grid-cols-2 gap-2 w-full">
-                {suggestedActions.map((suggestedAction, index) => (
-                    <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: 20 }}
-                    transition={{ delay: 0.05 * index }}
-                    key={index}
-                    className={index > 1 ? 'hidden sm:block' : 'block'}
-                    >
-                        <Button
-                            variant="ghost"
-                            onClick={ () => {
-                                const text = suggestedAction.action;
-                                onSubmit(text);
-                                setShowSuggestions(false);
-                            }}
-                            className="text-left border rounded-xl px-4 py-3.5 text-sm flex-1 gap-1 sm:flex-col w-full h-auto justify-start items-start"
-                        >
-                            <span className="font-medium">{suggestedAction.title}</span>
-                            <span className="text-muted-foreground">
-                            {suggestedAction.label}
-                            </span>
-                        </Button>
-                    </motion.div>
-                ))}
-            </div>
-            )}
-           
-        <input
-        type="file"
-        className="fixed -top-4 -left-4 size-0.5 opacity-0 pointer-events-none"
-        multiple
-        tabIndex={-1}
-        />
-
         <Textarea
         placeholder="Send a message..."
         className={cx(
@@ -92,7 +49,6 @@ export const ChatInput = ({ question, setQuestion, onSubmit, isLoading }: ChatIn
                 if (isLoading) {
                     toast.error('Please wait for the model to finish its response!');
                 } else {
-                    setShowSuggestions(false);
                     onSubmit();
                 }
             }
@@ -101,38 +57,34 @@ export const ChatInput = ({ question, setQuestion, onSubmit, isLoading }: ChatIn
         autoFocus
         />
     
-    <div className="absolute bottom-2 left-2">
-
-               
-                {isRecording ? (
-                    <Button
-                        className="rounded-full p-1.5 h-fit m-0.5 border dark:border-zinc-600"
-                        onClick={() => {
-                            stopRecording();
-                         
-                        }}
-                    >
-                         <CircleStop />
-                    </Button>
-                ):(
-                    <Button
-                        className="rounded-full p-1.5 h-fit m-0.5 border dark:border-zinc-600"
-                        onClick={() =>startRecording()}
-                    >
-                    <Play />
-                    </Button>
-                )}
-    
-      </div>
-      <div className="absolute bottom-2 right-2">
+    <div className="absolute bottom-2 left-2 flex gap-2">
+        {isRecording ? (
+            <Button
+                className="rounded-full p-1.5 h-fit m-0.5 border dark:border-zinc-600 hover:bg-accent hover:text-accent-foreground"
+                onClick={() => {
+                    stopRecording();
+                }}
+            >
+                <StopIcon />
+            </Button>
+        ):(
+            <Button
+                className="rounded-full p-1.5 h-fit m-0.5 border dark:border-zinc-600 hover:bg-accent hover:text-accent-foreground"
+                onClick={() => startRecording()}
+            >
+                <PlayIcon />
+            </Button>
+        )}
+    </div>
+    <div className="absolute bottom-2 right-2">
         <Button
-          className="rounded-full p-1.5 h-fit m-0.5 border dark:border-zinc-600"
+          className="rounded-full p-1.5 h-fit m-0.5 border dark:border-zinc-600 hover:bg-accent hover:text-accent-foreground"
           onClick={() => onSubmit(question)}
           disabled={question.length === 0}
         >
           <ArrowUpIcon size={14} />
         </Button>
-      </div>
+    </div>
     </div>
     );
 }

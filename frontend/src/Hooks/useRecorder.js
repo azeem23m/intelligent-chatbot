@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 
   const  useAudioRecorder=()=> {
 
-  const CHUNK_DURATION = 60 * 1000; 
+  const CHUNK_DURATION = 30 * 1000; 
 
 
   const [isRecording, setIsRecording] = useState(false);
@@ -39,6 +39,9 @@ import { useState, useRef, useEffect } from "react";
       recordingFlagRef.current = true;
       setIsRecording(true);
 
+      setLog((prev) => [...prev, '🎙️ Recording started']);
+
+
       recordChunk();
     } catch (err) {
       console.error("getDisplayMedia failed", err);
@@ -61,18 +64,13 @@ import { useState, useRef, useEffect } from "react";
       if (!chunks.length) return;
 
       const blob = new Blob(chunks, { type: "audio/webm" });
-      const start = accumulatedTimeRef.current / 1000;
-      const end = (accumulatedTimeRef.current + CHUNK_DURATION) / 1000;
 
       const body = new FormData();
       body.append("audio", blob);
-      body.append("start_time", start);
-      body.append("end_time", end);
 
  
-      fetch("http://localhost:8000/data/audio-upload", { method: "POST", body });
-    
-      console.log(`✅ Uploaded ${start}s → ${end}s`);
+      fetch("http://localhost:8000/data/audio-upload", { method: "POST", body }).then(() => console.log(`✅ Uploaded`));
+      
       setChunksCount((c) => c + 1);
 
 
@@ -102,6 +100,10 @@ import { useState, useRef, useEffect } from "react";
     }
 
     setLog((prev) => [...prev, `🛑 Recording stopped at ${Math.floor(accumulatedTimeRef.current / 60)}:${(accumulatedTimeRef.current / 1000 % 60).toFixed(0).padStart(2, '0')}`]);
+    
+    fetch("http://localhost:8000/data/reset-history", { method: "GET" })
+    .then(() => console.log('🔄 Reset history called'))
+
   };
 
   useEffect(() => {
