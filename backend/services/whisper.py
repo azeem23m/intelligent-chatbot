@@ -12,10 +12,9 @@ class Whisper():
   def __init__(self):
     self.device = "cuda"
     self.model = whisperx.load_model(
-      "distil-large-v3.5",
+      "distil-large-v3-turbo", # distil-large-v3-turbo
       device=self.device,
-      compute_type="int8_float16",
-      local_files_only=True
+      compute_type="int8_float16"
     )
 
   def transcribe(self, audio_path):

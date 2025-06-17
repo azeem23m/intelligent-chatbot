@@ -86,7 +86,7 @@ import { useState, useRef, useEffect } from "react";
     }, CHUNK_DURATION);
   };
 
-  const stopRecording = () => {
+  const stopRecording = async () => {
     recordingFlagRef.current = false;
     setIsRecording(false);
 
@@ -96,13 +96,17 @@ import { useState, useRef, useEffect } from "react";
 
     if (streamRef.current) {
       streamRef.current.getTracks().forEach((t) => t.stop());
-      streamRef.current = null;
+      streamRef.current = null; 
     }
 
     setLog((prev) => [...prev, `🛑 Recording stopped at ${Math.floor(accumulatedTimeRef.current / 60)}:${(accumulatedTimeRef.current / 1000 % 60).toFixed(0).padStart(2, '0')}`]);
     
-    fetch("http://localhost:8000/data/reset-history", { method: "GET" })
-    .then(() => console.log('🔄 Reset history called'))
+    try {
+      await fetch("http://localhost:8000/data/reset-history", { method: "GET" });
+      console.log('🔄 Reset history called');
+    } catch (err) {
+      console.error('Failed to reset history:', err);
+    }
 
   };
 

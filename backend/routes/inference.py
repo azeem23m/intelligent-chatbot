@@ -1,6 +1,6 @@
 from typing import AsyncGenerator
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Request
-from fastapi.responses import JSONResponse, StreamingResponse
+from fastapi.responses import JSONResponse
 
 chat = APIRouter()
 
@@ -38,7 +38,7 @@ async def websocket_endpoint(websocket: WebSocket):
                 ', '.join(f"{k}: {v}" for k, v in item['metadata'].items()) + "\n"
                 for i, item in enumerate(context)
             ])
-            await websocket.send_text(f"Context: {better_context}\n\n ##Response: {websocket.app.model.infere(data, better_context)}")
+            await websocket.send_text(f"Context: {better_context}\n\n ## Response: {websocket.app.model.infere(data, better_context)}")
 
     except WebSocketDisconnect:
         print("Client disconnected")

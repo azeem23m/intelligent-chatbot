@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from services import VectorDB, CohereChat, Whisper
+from services import VectorDB, LLM, Whisper
 from routes import data, chat
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -19,7 +19,7 @@ app.add_middleware(
 )
 
 app.vector_db = VectorDB()
-app.model = CohereChat()
+app.model = LLM()
 app.whisper = Whisper()
 app.history = ""
 app.time = 0
